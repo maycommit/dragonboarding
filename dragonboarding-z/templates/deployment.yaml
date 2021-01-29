@@ -1,24 +1,33 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ .Values.deploymentName }}
+  namespace: default
   labels:
-    app: {{ .Values.name }}
-    version: {{ .Values.name }}
+    app: {{ .Values.appname }}
+    version: {{ .Release.Name }}
+    component: {{ .Values.component }}
+    tag: {{ .Values.tag }}
+    circleId: {{ .Values.circleId }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.name }}
+      app: {{ .Values.appname }}
       version: {{ .Release.Name }}
+      component: {{ .Values.component }}
+      tag: {{ .Values.tag }}
+      circleId: {{ .Values.circleId }}
   template:
     metadata:
       annotations:
-        sidecar.istio.io/inject: '{{ .Values.sidecarIstio.enabled }}' 
+        sidecar.istio.io/inject: '{{ .Values.sidecarIstio.enabled }}'
       labels:
-        app: {{ .Values.name }}
+        app: {{ .Values.appname }}
         version: {{ .Release.Name }}
+        component: {{ .Values.component }}
+        tag: {{ .Values.tag }}
+        circleId: {{ .Values.circleId }}
     spec:
       containers:
         - name: {{ .Values.name }}
@@ -38,11 +47,11 @@ spec:
             httpGet:
               path: /
               port: 80
-              scheme: HTTP  
+              scheme: HTTP
             initialDelaySeconds: 30
             periodSeconds: 20
             successThreshold: 1
-            timeoutSeconds: 1 
+            timeoutSeconds: 1
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
